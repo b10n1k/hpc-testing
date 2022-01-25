@@ -46,19 +46,17 @@ test_srp()
 					mount -o loop /tmp/hpc-test.io /tmp/hpc-test.mount &&
 					dd if=/dev/urandom bs=1M count=64 of=/tmp/hpc-test.mount/input &&
 					umount /tmp/hpc-test.mount"
-	tp $client '(umount /tmp/srp-hpc-test; rmmod ib_srp) || true;
-	   		    rm -Rf /tmp/srp-hpc-test || true;
-				modprobe ib_srp &&
-				mkdir /tmp/srp-hpc-test &&
-				(ibsrpdm -c | grep "dgid='$server_wwn'";
-				 ibsrpdm -c | grep "dgid='$server_sys_wwn'" | sed -e "s/'$server_sysguid'/'$server_guid'/g" | true) > /sys/class/infiniband_srp/srp-'$client_board'-'$client_port'/add_target &&
-				sleep 1 &&
-				block_device=$(ls /sys/class/infiniband/'$client_board'/device/host*/target*/*:*/block) &&
-				mount /dev/$block_device /tmp/srp-hpc-test &&
-				cp -R /tmp/srp-hpc-test/input /tmp/srp-hpc-test/output &&
-				diff -q /tmp/srp-hpc-test/input /tmp/srp-hpc-test/output&&
-				umount /tmp/srp-hpc-test &&
-				rmmod ib_srp'
+		# umount /tmp/srp-hpc-test; rmmod ib_srp) || true;
+		# rm -Rf /tmp/srp-hpc-test || true;
+	tp $client 'modprobe ib_srp'
+	tp $client 'mkdir /tmp/srp-hpc-test'
+	tp $client '(ibsrpdm -c | grep "dgid='$server_wwn'"; ibsrpdm -c | grep "dgid='$server_sys_wwn'" | sed -e "s/'$server_sysguid'/'$server_guid'/g" | true) > /sys/class/infiniband_srp/srp-'$client_board'-'$client_port'/add_target'
+	tp $client 'sleep 1'
+	tp $client 'block_device=$(ls /sys/class/infiniband/'$client_board'/device/host*/target*/*:*/block)'
+	tp $client 'mount /dev/$block_device /tmp/srp-hpc-test'
+	tp $client 'cp -R /tmp/srp-hpc-test/input /tmp/srp-hpc-test/output && diff -q /tmp/srp-hpc-test/input /tmp/srp-hpc-test/output'
+	tp $client 'umount /tmp/srp-hpc-test'
+	tp $client 'rmmod ib_srp'
 	tp $srp_server "mount -o loop /tmp/hpc-test.io /tmp/hpc-test.mount &&
 					diff -q /tmp/hpc-test.mount/input /tmp/hpc-test.mount/output &&
 					umount /tmp/hpc-test.mount"

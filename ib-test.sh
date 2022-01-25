@@ -333,7 +333,7 @@ phase_8(){
 			MPI_FLAVOURS=$(echo $MPI_FLAVOURS | sed -e 's/openmpi,//g' -e 's/openmpi$//g' |
 							   sed -e 's/openmpi3,//g' -e 's/openmpi3$//g')
 			;;
-		15.2)
+		15.2|15.4)
 			juLog -name=mpitests_skipping_openmpi 'echo "WARNING: Disabling OpenMPI for SLE15"'
 			MPI_FLAVOURS=$(echo $MPI_FLAVOURS | sed -e 's/openmpi,//g' -e 's/openmpi$//g')
 			;;

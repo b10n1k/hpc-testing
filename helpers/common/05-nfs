@@ -23,16 +23,16 @@ test_nfs()
 	tp $client "! (mount | grep /tmp/RAM) || umount -f /tmp/RAM"
 
 	subnet=$(echo $server_ip | sed -e 's/\.[0-9]\+$/.0/')
-	tp $server "exportfs -u -a &&
-	   		   systemctl stop nfs-server &&
-			   (! (mount | grep /tmp/RAM) || umount -f /tmp/RAM) &&
-			   mkdir -p /tmp/RAM && mount -t tmpfs -o size=2G tmpfs /tmp/RAM &&
-			   echo '/tmp/RAM   $subnet/255.255.255.0(fsid=0,rw,async,insecure,no_root_squash)'> /etc/exports &&
-			   systemctl start nfs-server &&
-			   modprobe svcrdma &&
-			   echo 'rdma 20049' > /proc/fs/nfsd/portlist &&
-	   		   exportfs -a &&
-			   dd if=/dev/urandom bs=1M count=64 of=/tmp/RAM/input"
+	tp $server "exportfs -u -a"
+	tp $server "systemctl stop nfs-server"
+	tp $server "(! (mount | grep /tmp/RAM) || umount -f /tmp/RAM)"
+	tp $server "mkdir -p /tmp/RAM && mount -t tmpfs -o size=2G tmpfs /tmp/RAM"
+	tp $server "echo '/tmp/RAM   $subnet/255.255.255.0(fsid=0,rw,async,insecure,no_root_squash)'> /etc/exports"
+	tp $server "systemctl start nfs-server"
+	tp $server "modprobe svcrdma"
+	tp $server "echo 'rdma 20049' > /proc/fs/nfsd/portlist"
+	tp $server "exportfs -a"
+	tp $server "dd if=/dev/urandom bs=1M count=64 of=/tmp/RAM/input"
 
 	tp $client "modprobe xprtrdma &&
 	   		   mkdir -p /tmp/RAM &&
