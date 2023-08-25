@@ -40,6 +40,10 @@ eVal() {
   echo $? | tr -d "\n" >$errfile
 }
 
+esc() {
+    printf "%s\n" "$1" | sed -e "s/'/'\"'\"'/g" -e "1s/^/'/" -e "\$s/\$/'/"
+}
+
 juLogRefreshFile() {
   ## testsuite block
   cat <<EOF > "$juDIR/TEST-$suite.xml"
@@ -53,7 +57,7 @@ EOF
 
 juLogSetProperty() {
 	properties="$properties
-        <property name=\"$1\" value=\"$2\" />"
+        <property name=\"`esc $1`\" value=\"$2\" />"
 	juLogRefreshFile
 }
 
